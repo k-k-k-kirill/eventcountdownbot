@@ -6,7 +6,7 @@ dotenv.config();
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
-const interval = 24 * 60 * 60 * 1000;
+const interval = 10000;
 const targetTime = "11:00:00";
 
 const getDaysLeft = () => {
