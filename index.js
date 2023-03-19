@@ -6,6 +6,8 @@ dotenv.config();
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
+const commandPrefix = "slave_";
+
 const interval = 24 * 60 * 60 * 1000;
 const targetTime = "11:00:00";
 
@@ -27,7 +29,18 @@ const sendStandardMessage = (ctx) => {
   bot.telegram.sendMessage(ctx.chat.id, message);
 };
 
-bot.start((ctx) => {
+const sendAngryReplyMessage = (ctx) => {
+  const daysLeft = getDaysLeft();
+  let message = `Да заебали блядь! До отпуска осталось ${daysLeft} дней. Хуле не ясно?!`;
+
+  if (daysLeft <= 0) {
+    message = `Отпуск блеать! Иди купайся!`;
+  }
+
+  ctx.reply(message);
+};
+
+bot.command(`${commandPrefix}start`, (ctx) => {
   sendStandardMessage(ctx);
 
   setInterval(() => {
@@ -40,15 +53,23 @@ bot.start((ctx) => {
     setTimeout(() => sendStandardMessage(ctx), delay);
   }, interval);
 });
-bot.on("message", (ctx) => {
-  const daysLeft = getDaysLeft();
-  let message = `Да заебали блядь! До отпуска осталось ${daysLeft} дней. Хуле не ясно?!`;
 
-  if (daysLeft <= 0) {
-    message = `Отпуск блеать! Иди купайся!`;
+bot.mention((ctx) => {
+  const chatType = ctx.message.chat.type;
+  if (chatType === "group" || chatType === "supergroup") {
+    sendAngryReplyMessage(ctx);
   }
+});
 
-  ctx.reply(message);
+bot.on("message", (ctx) => {
+  if (chatType === "group" || chatType === "supergroup") {
+    if (
+      ctx.message.reply_to_message &&
+      ctx.message.reply_to_message.from.id === bot.telegram.botInfo.id
+    ) {
+      sendAngryReplyMessage(ctx);
+    }
+  }
 });
 bot.launch();
 
