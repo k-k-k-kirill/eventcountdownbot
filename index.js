@@ -40,6 +40,20 @@ const sendAngryReplyMessage = (ctx) => {
   ctx.reply(message);
 };
 
+bot.use((ctx, next) => {
+  if (
+    ctx.updateType === "message" &&
+    ctx.message.text &&
+    ctx.message.text.startsWith(commandPrefix)
+  ) {
+    // If the message is a command with the prefix, pass it on to the command handler
+    return next();
+  } else {
+    // If the message is not a command with the prefix, do nothing
+    return Promise.resolve();
+  }
+});
+
 bot.command(`${commandPrefix}start`, (ctx) => {
   sendStandardMessage(ctx);
 
