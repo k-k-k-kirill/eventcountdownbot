@@ -7,7 +7,6 @@ dotenv.config();
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
 const commandPrefix = "slave_";
-let isBotStarted = false;
 
 const interval = 24 * 60 * 60 * 1000;
 const targetTime = "11:00:00";
@@ -41,50 +40,31 @@ const sendAngryReplyMessage = (ctx) => {
   ctx.reply(message);
 };
 
-bot.on("new_chat_members", (ctx) => {
-  if (!isBotStarted) {
-    sendStandardMessage(ctx);
-    isBotStarted = true;
-
-    setInterval(() => {
-      const now = moment();
-      const targetDate = moment(targetTime, "HH:mm:ss");
-      if (now.isAfter(targetDate)) {
-        targetDate.add(1, "day");
-      }
-      const delay = targetDate.diff(now);
-      setTimeout(() => sendStandardMessage(ctx), delay);
-    }, interval);
-  }
-});
-
 bot.command(`${commandPrefix}start`, (ctx) => {
-  if (!isBotStarted) {
-    sendStandardMessage(ctx);
-    isBotStarted = true;
+  sendStandardMessage(ctx);
+  isBotStarted = true;
 
-    setInterval(() => {
-      const now = moment();
-      const targetDate = moment(targetTime, "HH:mm:ss");
-      if (now.isAfter(targetDate)) {
-        targetDate.add(1, "day");
-      }
-      const delay = targetDate.diff(now);
-      setTimeout(() => sendStandardMessage(ctx), delay);
-    }, interval);
-  }
+  setInterval(() => {
+    const now = moment();
+    const targetDate = moment(targetTime, "HH:mm:ss");
+    if (now.isAfter(targetDate)) {
+      targetDate.add(1, "day");
+    }
+    const delay = targetDate.diff(now);
+    setTimeout(() => sendStandardMessage(ctx), delay);
+  }, interval);
 });
 
-bot.mention((ctx) => {
-  const chatType = ctx.message.chat.type;
-  if (chatType === "group" || chatType === "supergroup") {
+bot.on("text", (ctx) => {
+  const message = ctx.message;
+
+  if (message.reply_to_message && message.reply_to_message.from.is_bot) {
+    sendAngryReplyMessage(ctx);
+  } else if (message.text.includes(`@${ctx.botInfo.username}`)) {
     sendAngryReplyMessage(ctx);
   }
 });
 
-bot.on("message", (ctx) => {
-  sendAngryReplyMessage(ctx);
-});
 bot.launch();
 
 // Enable graceful stop
