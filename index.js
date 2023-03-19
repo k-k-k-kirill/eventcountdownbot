@@ -83,14 +83,7 @@ bot.mention((ctx) => {
 });
 
 bot.on("message", (ctx) => {
-  if (chatType === "group" || chatType === "supergroup") {
-    if (
-      ctx.message.reply_to_message &&
-      ctx.message.reply_to_message.to.id === bot.telegram.botInfo.id
-    ) {
-      sendAngryReplyMessage(ctx);
-    }
-  }
+  sendAngryReplyMessage(ctx);
 });
 bot.launch();
 
