@@ -6,7 +6,7 @@ dotenv.config();
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
-const interval = 10000;
+const interval = 24 * 60 * 60 * 1000;
 const targetTime = "11:00:00";
 
 const getDaysLeft = () => {
@@ -31,14 +31,13 @@ bot.start((ctx) => {
   sendStandardMessage(ctx);
 
   setInterval(() => {
-    // const now = moment();
-    // const targetDate = moment(targetTime, "HH:mm:ss");
-    // if (now.isAfter(targetDate)) {
-    //   targetDate.add(1, "day");
-    // }
-    // const delay = targetDate.diff(now);
-    // setTimeout(() => sendStandardMessage(ctx), delay);
-    sendStandardMessage(ctx);
+    const now = moment();
+    const targetDate = moment(targetTime, "HH:mm:ss");
+    if (now.isAfter(targetDate)) {
+      targetDate.add(1, "day");
+    }
+    const delay = targetDate.diff(now);
+    setTimeout(() => sendStandardMessage(ctx), delay);
   }, interval);
 });
 bot.on("message", (ctx) => {
