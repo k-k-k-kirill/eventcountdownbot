@@ -11,6 +11,9 @@ const commandPrefix = "slave_";
 const interval = 24 * 60 * 60 * 1000;
 const targetTime = "11:00:00";
 
+let chatId;
+let timer;
+
 const getDaysLeft = () => {
   const currentDate = moment();
   const targetDate = moment("2023-08-01", "YYYY-MM-DD");
@@ -40,18 +43,33 @@ const sendAngryReplyMessage = (ctx) => {
   ctx.reply(message);
 };
 
-bot.command(`${commandPrefix}start`, (ctx) => {
-  sendStandardMessage(ctx);
-  isBotStarted = true;
+const sendStandardMessageToChat = async (chatId) => {
+  const daysLeft = getDaysLeft();
+  let message = `До отпуска осталось ${daysLeft} дней. Держитесь!`;
 
-  setInterval(() => {
+  if (daysLeft <= 0) {
+    message = `Отпуск блеать!`;
+  }
+
+  bot.telegram.sendMessage(chatId, message);
+};
+
+bot.command(`${commandPrefix}start`, (ctx) => {
+  chatId = ctx.chat.id;
+  sendStandardMessage(ctx);
+
+  if (timer) {
+    clearInterval(timer);
+  }
+
+  timer = setInterval(() => {
     const now = moment();
     const targetDate = moment(targetTime, "HH:mm:ss");
     if (now.isAfter(targetDate)) {
       targetDate.add(1, "day");
     }
     const delay = targetDate.diff(now);
-    setTimeout(() => sendStandardMessage(ctx), delay);
+    setTimeout(() => sendStandardMessageToChat(chatId), delay);
   }, interval);
 });
 
