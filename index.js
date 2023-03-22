@@ -8,7 +8,7 @@ const bot = new Telegraf(process.env.BOT_TOKEN);
 
 const commandPrefix = "slave_";
 
-const interval = 24 * 60 * 60 * 1000;
+const interval = 4 * 60 * 60 * 1000;
 const targetTime = "13:00:00";
 const targetDate = moment("2023-08-01", "YYYY-MM-DD");
 
