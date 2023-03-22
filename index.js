@@ -1,15 +1,13 @@
 const { Telegraf } = require("telegraf");
 const dotenv = require("dotenv");
 const moment = require("moment");
+const cron = require("node-cron");
 
 dotenv.config();
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
 const commandPrefix = "slave_";
-
-const interval = 4 * 60 * 60 * 1000;
-const targetTime = "13:00:00";
 const targetDate = moment("2023-08-01", "YYYY-MM-DD");
 
 let chatId;
@@ -59,20 +57,10 @@ bot.command(`${commandPrefix}start`, (ctx) => {
   sendStandardMessage(ctx);
 
   if (timer) {
-    clearInterval(timer);
+    timer.stop();
   }
 
-  timer = setInterval(() => {
-    const now = moment();
-    const messageDate = moment(targetTime, "HH:mm:ss");
-
-    if (now.isAfter(messageDate)) {
-      messageDate.add(1, "day");
-    }
-    const delay = messageDate.diff(now);
-
-    setTimeout(() => sendStandardMessageToChat(chatId), delay);
-  }, interval);
+  timer = cron.schedule("0 15 * * *", () => sendStandardMessageToChat(chatId));
 });
 
 bot.on("text", (ctx) => {
