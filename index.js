@@ -9,14 +9,14 @@ const bot = new Telegraf(process.env.BOT_TOKEN);
 const commandPrefix = "slave_";
 
 const interval = 24 * 60 * 60 * 1000;
-const targetTime = "11:00:00";
+const targetTime = "13:00:00";
+const targetDate = moment("2023-08-01", "YYYY-MM-DD");
 
 let chatId;
 let timer;
 
 const getDaysLeft = () => {
   const currentDate = moment();
-  const targetDate = moment("2023-08-01", "YYYY-MM-DD");
 
   return targetDate.diff(currentDate, "days");
 };
@@ -64,11 +64,13 @@ bot.command(`${commandPrefix}start`, (ctx) => {
 
   timer = setInterval(() => {
     const now = moment();
-    const targetDate = moment(targetTime, "HH:mm:ss");
-    if (now.isAfter(targetDate)) {
-      targetDate.add(1, "day");
+    const messageDate = moment(targetTime, "HH:mm:ss");
+
+    if (now.isAfter(messageDate)) {
+      messageDate.add(1, "day");
     }
-    const delay = targetDate.diff(now);
+    const delay = messageDate.diff(now);
+
     setTimeout(() => sendStandardMessageToChat(chatId), delay);
   }, interval);
 });
