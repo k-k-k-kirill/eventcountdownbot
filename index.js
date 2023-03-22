@@ -60,7 +60,7 @@ bot.command(`${commandPrefix}start`, (ctx) => {
     timer.stop();
   }
 
-  timer = cron.schedule("0 15 * * *", () => sendStandardMessageToChat(chatId));
+  timer = cron.schedule("0 13 * * *", () => sendStandardMessageToChat(chatId));
 });
 
 bot.on("text", (ctx) => {
